@@ -1,3 +1,12 @@
 1- generate key
 2- interface for send and callback method and controll all gateways type
 3-
+
+
+
+
+
+//webhook
+1- Generate sceret webhook key from stripe
+2- install package stripe
+3- function 

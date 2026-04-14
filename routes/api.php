@@ -11,3 +11,6 @@ Route::get('/user', function (Request $request) {
 
 Route::post('/payment/process', [PaymentController::class, 'paymentProcess']);
 Route::match(['GET','POST'],'/payment/callback', [PaymentController::class, 'callBack']);
+
+// weebhook
+Route::post('/stripe/webhook', [PaymentController::class, 'webhook']);
