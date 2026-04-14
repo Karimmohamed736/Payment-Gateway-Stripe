@@ -20,6 +20,11 @@ class PaymentController extends Controller
     {
 
         return $this->paymentGateway->sendPayment($request);
+        if ($result['success']) {
+            return redirect($result['url']);
+        }
+
+        return redirect()->route('payment.failed');
     }
 
     public function callBack(Request $request): \Illuminate\Http\RedirectResponse
