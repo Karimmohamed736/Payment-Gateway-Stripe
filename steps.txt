@@ -31,9 +31,7 @@ send data request to api to get response
 
 
 
-
-
-//webhook
+//webhook  عشان التأكيد الحقيقي الآمن
 1- Generate sceret webhook key from stripe
 2- install package stripe
 3- composer require stripe/stripe-php (for webhook)

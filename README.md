@@ -1,62 +1,183 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 💳 Laravel Payment Gateway Integration
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A clean, extensible payment gateway integration for Laravel using the **Strategy Design Pattern** — supports multiple payment providers with minimal code changes.
 
+> Built with Stripe as the default provider, ready to extend with PayPal, Fawry, and more.
 
-## Getting Started
+---
 
-To download and set up this project from GitHub, follow the steps below:
+## 🏗️ Architecture Overview
 
-1. **Clone the Repository**  
-   Copy the repository link by clicking on the **Code** button, then select **HTTPS** or **SSH**.
-
-   In your terminal, navigate to the directory where you want to clone the project and run:
-
- ```
-   git clone <repository-url>
-  ```
-**Clone a Specific Branch**
-
-If you want to clone a specific branch, use the following command:
-
-``` 
-git clone -b <branch-name> <repository-url>
 ```
-2.**Navigate to the Project Folder**
+PaymentGatewayInterface     ←   The Contract
+        ↑
+BasePaymentService          ←   Shared HTTP Logic
+        ↑
+StripePaymentService        ←   Stripe Implementation
+        ↑
+PaymentController           ←   Handles HTTP Layer
+        ↑
+AppServiceProvider          ←   Binds Interface → Service
+```
 
-After cloning, navigate to the project folder:
-```
-cd <project-folder>
-```
-3.**Install Dependencies**
+---
 
-Run the following command to install all required dependencies
+## ✨ Features
+
+- ✅ Strategy Design Pattern — swap payment gateways in one line
+- ✅ Stripe Checkout Sessions
+- ✅ Webhook signature verification
+- ✅ Callback handling (success / failed)
+- ✅ Easily extendable to PayPal, Fawry, Moyasar, etc.
+
+---
+
+## 🚀 Installation
+
+### 1. Clone the repo
+
+```bash
+git clone https://github.com/your-username/your-repo.git
+cd your-repo
 ```
+
+### 2. Install dependencies
+
+```bash
 composer install
 ```
-4.**Set Up Environment Variables**
 
-Copy the example environment file and rename it to .env:
-```
-copy .env.example .env
-```
-Open the .env file and update the necessary configurations, such as database settings.
-and  replace SESSION_DRIVER=file and CACHE_STORE=file
+### 3. Copy `.env` and configure
 
-5.**Generate Application Key**
-
-Run this command to generate a unique application key (specific to Laravel projects):
-```
+```bash
+cp .env.example .env
 php artisan key:generate
 ```
-6.**Run the Application**
+
+### 4. Add Stripe keys to `.env`
+
+```env
+STRIPE_BASE_URL=https://api.stripe.com
+STRIPE_SECRET_KEY=sk_test_xxxxxxxxxxxxxxxx
+STRIPE_WEBHOOK_SECRET=whsec_xxxxxxxxxxxxxxxx
+```
+
+### 5. Add to `config/services.php`
+
+```php
+'stripe' => [
+    'base_url'       => env('STRIPE_BASE_URL'),
+    'secret_key'     => env('STRIPE_SECRET_KEY'),
+    'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
+],
+```
+
+---
+
+## 📡 API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/payment/process` | Initiate a payment |
+| `GET` | `/api/payment/callback` | Stripe redirect after payment |
+| `POST` | `/api/stripe/webhook` | Stripe webhook (server-to-server) |
+
+---
+
+## 📥 Payment Request
+
+```json
+POST /api/payment/process
+Content-Type: application/json
+
+{
+    "amount": 100,
+    "currency": "usd",
+    "payment_method": "stripe"
+}
+```
+
+---
+
+## 🔄 Payment Flow
 
 ```
-php artisan serve
+1. User sends POST /api/payment/process
+        ↓
+2. PaymentFactory creates StripePaymentService
+        ↓
+3. Stripe returns a Checkout Session URL
+        ↓
+4. User is redirected to Stripe's payment page
+        ↓
+5. User completes payment
+        ↓
+        ├──► Stripe redirects user ──► /callback ──► success/failed page
+        │
+        └──► Stripe sends Webhook ──► /stripe/webhook ──► update database
 ```
-if the project requires additional setup, follow any provided documentation for further instructions
+
+---
+
+## 🔒 Webhook Security
+
+All incoming webhook requests are verified using Stripe's signature before processing:
+
+```php
+$event = Webhook::constructEvent($payload, $signature, $secret);
+```
+
+> Requests with invalid signatures are rejected with `400 Bad Request`.
+
+### Test webhooks locally using Stripe CLI
+
+```bash
+stripe listen --forward-to localhost:8000/api/stripe/webhook
+```
+ 
+
+That's it — no changes needed anywhere else. ✅
+
+---
+
+📸 Screenshots
+
+## 🔐 API (Postman)
+![API](assets/API_Stripe.png)
+
+## ✅ Success Payment
+![Success](assets/Success.png)
+
+## ❌ Error Payment
+![Error](assets/Error.png)
+
+## 🔐 Webhook
+![Webhook](assets/Webhook.png)
+
+
+---
+
+## 📁 Project Structure
+
+```
+app/
+├── Http/
+│   └── Controllers/
+│       └── PaymentController.php
+├── Interfaces/
+│   └── PaymentGatewayInterface.php
+├── Services/
+│   ├── BasePaymentService.php
+│   └── StripePaymentService.php
+├── Factories/
+│   └── PaymentFactory.php
+└── Providers/
+    └── AppServiceProvider.php
+```
+
+
+---
+
+## 👨‍💻 Author
+
+Kareem Mohamed
