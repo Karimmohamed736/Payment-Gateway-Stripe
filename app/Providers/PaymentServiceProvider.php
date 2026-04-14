@@ -13,7 +13,8 @@ class PaymentServiceProvider extends ServiceProvider
      */
     public function register(): void {
 
-    $this->app->bind(PaymentGatewayInterface::class, StripePaymentService::class);
+
+    // $this->app->bind(PaymentGatewayInterface::class, StripePaymentService::class);
     }
 
     /**
