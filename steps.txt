@@ -39,7 +39,7 @@ send data request to api to get response
 5- download CLI stripe then run the file u downloaded in cmd after verify it in environment of pc
 6- run stripe login , it will give u access login then u will have the key
 7- write the key in env
-8- go to local weebhok listener, and run stripe listen --forward-to localhost:8000/webhook
+8- go to local weebhok listener, and run stripe listen --forward-to localhost:8000/api/stripe/webhook
 9- send request api to stripe to pay
 10- Get any card tester to test   (https://docs.stripe.com/testing?testing-method=card-numbers)
 11- after payment, it will send u in request of webhook in cmd 200 and go success page in stripe
